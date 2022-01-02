@@ -15,6 +15,7 @@ import {
     InputJudgment,
     InputOffset,
     Judge,
+    LessOr,
     Multiply,
     Not,
     Or,
@@ -31,6 +32,7 @@ import {
     Time,
     TouchST,
     TouchStarted,
+    TouchX,
 } from 'sonolus.js'
 import { options } from '../../configuration/options'
 import { buckets } from '../buckets'
@@ -118,7 +120,10 @@ export function note(): Script {
         TouchStarted,
         // タッチを開始した時間が 最早入力受付時刻以上か
         GreaterOr(TouchST, minInputTime),
-        // タッチ中でない
+        // タッチ座標がノーツ範囲内か
+        GreaterOr(TouchX, xStart),
+        LessOr(TouchX, xEnd),
+        // ステージをタッチ中でない
         Not(isTouchOccupied),
         [
             // タッチ中に変更
@@ -197,31 +202,35 @@ export function note(): Script {
     /**
      * 並列描画処理
      */
-    const updateParallel = Or(
-        // 入力中
-        inputState,
-        // 最遅入力受付時間を超えた
-        Greater(Time, maxInputTime),
-        // 条件が満たされてる場合実行
-        [
-            // Y座標に新しい地点を代入
-            yCurrent.set(Remap(spawnTime, EntityData.time, yFrom, yTo, Time)),
-            // スプライトを描画
-            Draw(
-                SkinSprite.NoteHeadCyan,
-                xStart,
-                bottom,
-                xStart,
-                top,
-                xEnd,
-                top,
-                xEnd,
-                bottom,
-                z,
-                1
-            ),
-        ]
-    )
+    const updateParallel = [
+        Or(
+            // 入力されたら削除
+            inputState,
+            // 最遅入力受付時間を超えたら削除
+            Greater(Time, maxInputTime),
+            // 条件が満たされてる場合実行
+            [
+                // Y座標に新しい地点を代入
+                yCurrent.set(
+                    Remap(spawnTime, EntityData.time, yFrom, yTo, Time)
+                ),
+                // スプライトを描画
+                Draw(
+                    SkinSprite.NoteHeadCyan,
+                    xStart,
+                    bottom,
+                    xStart,
+                    top,
+                    xEnd,
+                    top,
+                    xEnd,
+                    bottom,
+                    z,
+                    1
+                ),
+            ]
+        ),
+    ]
 
     return {
         // 事前処理

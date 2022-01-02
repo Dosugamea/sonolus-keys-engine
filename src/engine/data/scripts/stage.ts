@@ -32,6 +32,7 @@ export function stage(): Script {
     const rightLineXStart = EntityMemory.to<number>(3)
     const rightLineXEnd = EntityMemory.to<number>(4)
 
+    const isTouchOccupied = TemporaryMemory.to<boolean>(0)
 
     /**
      * スポーン順序 (初期化スクリプトの次)
@@ -50,7 +51,7 @@ export function stage(): Script {
         // タッチ開始 + 別のタッチコールバックが発火中でないなら 効果音再生
         And(TouchStarted, Not(isTouchOccupied), Play(EffectClip.Stage, 0.02)),
         // タッチが終了していなければタッチ中にする
-        Or(TouchEnded, anyTouch.set(true)),
+        Or(TouchEnded, [anyTouch.set(true), isTouchOccupied.set(true)]),
     ]
 
     // 定数
@@ -128,6 +129,7 @@ export function stage(): Script {
         ),
         // 何もタッチされていない状態に戻す
         anyTouch.set(false),
+        isTouchOccupied.set(false),
     ]
 
     return {
