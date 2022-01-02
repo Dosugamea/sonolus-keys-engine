@@ -1,5 +1,6 @@
 import { EffectClip } from 'sonolus-core'
 import {
+    Add,
     And,
     Draw,
     EntityInfo,
@@ -21,7 +22,7 @@ import {
 
 /**
  * エンジンのステージ(判定線等)のスクリプト
-*/
+ */
 export function stage(): Script {
     // 汎用読み書きメモリ (このスクリプト内のコールバックで共有)
     const anyTouch = EntityMemory.to<boolean>(0)
@@ -29,17 +30,17 @@ export function stage(): Script {
 
     /**
      * スポーン順序 (初期化スクリプトの次)
-    */
+     */
     const spawnOrder = 1
 
     /**
      * スポーン条件 (初期化スクリプトがデスポーンした後)
-    */
+     */
     const shouldSpawn = Equal(EntityInfo.of(0).state, State.Despawned)
 
     /**
      * タッチコールバック
-    */
+     */
     const touch = [
         // タッチ開始 + 別のタッチコールバックが発火中でないなら 効果音再生
         And(TouchStarted, Not(isTouchOccupied), Play(EffectClip.Stage, 0.02)),
@@ -59,9 +60,59 @@ export function stage(): Script {
     const bottom = yCenter - thickness / 2
 
     /**
+     * ノーツの大きさ
+     */
+    const radius = 0.2
+
+    /**
      * 並列描画処理
-    */
+     */
     const updateParallel = [
+        // 枠左 を描画
+        Draw(
+            SkinSprite.JudgmentLine,
+            Multiply(-radius, 4),
+            1,
+            Multiply(-radius, 4),
+            -1,
+            Add(Multiply(-radius, 4), thickness),
+            -1,
+            Add(Multiply(-radius, 4), thickness),
+            1,
+            0,
+            // 不透明度
+            If(anyTouch, 1, 0.5)
+        ),
+        // 枠右 を描画
+        Draw(
+            SkinSprite.JudgmentLine,
+            Multiply(radius, 4),
+            1,
+            Multiply(radius, 4),
+            -1,
+            Add(Multiply(radius, 4), thickness),
+            -1,
+            Add(Multiply(radius, 4), thickness),
+            1,
+            0,
+            // 不透明度
+            If(anyTouch, 1, 0.5)
+        ),
+        // 判定線を描画
+        Draw(
+            SkinSprite.JudgmentLine,
+            left,
+            bottom,
+            left,
+            top,
+            right,
+            top,
+            right,
+            bottom,
+            0,
+            // 不透明度
+            If(anyTouch, 1, 0.5)
+        ),
         // 判定線を描画
         Draw(
             SkinSprite.JudgmentLine,
