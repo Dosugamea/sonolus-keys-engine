@@ -15,6 +15,7 @@ import {
     Script,
     SkinSprite,
     State,
+    Subtract,
     TemporaryMemory,
     TouchEnded,
     TouchStarted,
@@ -71,13 +72,13 @@ export function stage(): Script {
         // 枠左 を描画
         Draw(
             SkinSprite.JudgmentLine,
-            Multiply(-radius, 4),
+            Subtract(Multiply(-radius, 4), thickness),
             1,
+            Subtract(Multiply(-radius, 4), thickness),
+            -1,
             Multiply(-radius, 4),
             -1,
-            Add(Multiply(-radius, 4), thickness),
-            -1,
-            Add(Multiply(-radius, 4), thickness),
+            Multiply(-radius, 4),
             1,
             0,
             // 不透明度
@@ -94,21 +95,6 @@ export function stage(): Script {
             -1,
             Add(Multiply(radius, 4), thickness),
             1,
-            0,
-            // 不透明度
-            If(anyTouch, 1, 0.5)
-        ),
-        // 判定線を描画
-        Draw(
-            SkinSprite.JudgmentLine,
-            left,
-            bottom,
-            left,
-            top,
-            right,
-            top,
-            right,
-            bottom,
             0,
             // 不透明度
             If(anyTouch, 1, 0.5)
