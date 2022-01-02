@@ -57,8 +57,8 @@ export async function fromOsu(
                     data: {
                         index: 0,
                         values: [
-                            +circle.startTime + offset,
-                            Math.floor((circle.x * keys) / 512),
+                            (+circle.startTime + offset) / 1000,
+                            Math.floor((circle.x * keys) / 512) - 1,
                         ],
                     },
                 }
