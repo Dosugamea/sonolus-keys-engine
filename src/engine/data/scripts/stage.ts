@@ -85,7 +85,7 @@ export function stage(): Script {
     const updateParallel = [
         // 枠左 を描画
         Draw(
-            SkinSprite.JudgmentLine,
+            SkinSprite.StageLeftBorder,
             leftLineXStart,
             1,
             leftLineXStart,
@@ -96,11 +96,11 @@ export function stage(): Script {
             1,
             0,
             // 不透明度
-            If(anyTouch, 1, 0.5)
+            1
         ),
         // 枠右 を描画
         Draw(
-            SkinSprite.JudgmentLine,
+            SkinSprite.StageRightBorder,
             rightLineXStart,
             1,
             rightLineXStart,
@@ -110,8 +110,7 @@ export function stage(): Script {
             rightLineXEnd,
             1,
             0,
-            // 不透明度
-            If(anyTouch, 1, 0.5)
+            1
         ),
         // 判定線を描画
         Draw(
@@ -125,7 +124,6 @@ export function stage(): Script {
             right,
             bottom,
             0,
-            // 不透明度
             If(anyTouch, 1, 0.5)
         ),
         // 何もタッチされていない状態に戻す
