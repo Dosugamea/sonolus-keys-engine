@@ -16,7 +16,7 @@ export const levelData: LevelData = {
                 archetype: archetypes.noteIndex,
                 data: {
                     index: 0,
-                    values: [+time],
+                    values: [+time, Math.floor(Math.random() * 3)],
                 },
             })),
     ],
