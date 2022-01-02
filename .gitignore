@@ -1,2 +1,4 @@
 .vscode/
 node_modules/
+src/bgm.mp3
+src/level/data/chart.osu

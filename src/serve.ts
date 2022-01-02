@@ -17,6 +17,9 @@ import { buildOutput } from '.'
 const sonolus = serve(buildOutput)
 
 const level = sonolus.db.levels[0]
+
+level.bgm = sonolus.add('LevelBgm', './src/bgm.mp3')
+
 level.cover = {
     type: 'LevelCover',
     hash: '',

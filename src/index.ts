@@ -1,6 +1,6 @@
 import { build } from 'sonolus.js'
 import { engine } from './engine'
-import { level } from './level'
+import { levelData } from './level/data'
 
 /*
  * [index.ts]
@@ -8,9 +8,11 @@ import { level } from './level'
  *  1 engineとlevelフォルダ内のソースをimportする
  *  2 ビルドを行う
  *  3 buildOutputとしてexportする
-*/
+ */
 
 export const buildOutput = build({
     engine,
-    level,
+    level: {
+        data: levelData,
+    },
 })

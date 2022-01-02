@@ -1,23 +1,9 @@
 import { readFileSync } from 'fs'
-import { LevelData } from 'sonolus-core'
 import { archetypes } from '../../engine/data/archetypes'
+import { fromOsu } from '../../lib/osu/convert'
 
-export const levelData: LevelData = {
-    entities: [
-        {
-            archetype: archetypes.initializationIndex,
-        },
-        {
-            archetype: archetypes.stageIndex,
-        },
-        ...readFileSync(__dirname + '/chart.txt', 'utf-8')
-            .split('\n')
-            .map((time) => ({
-                archetype: archetypes.noteIndex,
-                data: {
-                    index: 0,
-                    values: [+time, Math.floor(Math.random() * 3)],
-                },
-            })),
-    ],
-}
+export const levelData = await fromOsu(
+    readFileSync('./src/level/data/chart.osu', 'utf8'),
+    0,
+    archetypes
+)
