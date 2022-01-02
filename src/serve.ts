@@ -12,7 +12,7 @@ import { buildOutput } from '.'
  *  6 sonolus-expressに渡したテストレベルにジャケットや音源を指定する
  *    ※ テスト用のため、直URLを指定している
  *    ※ 譜面はビルド前に渡しておりビルド結果に含まれている
-*/
+ */
 
 const sonolus = serve(buildOutput)
 
