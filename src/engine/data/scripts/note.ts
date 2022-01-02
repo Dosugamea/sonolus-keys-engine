@@ -40,6 +40,10 @@ class EntityDataPointer extends Pointer {
     public get time() {
         return this.to<number>(0)
     }
+
+    public get column() {
+        return this.to<number>(1)
+    }
 }
 
 // EntityData: Levelからパラメータを受け取れる唯一のメモリ
@@ -50,7 +54,7 @@ const EntityData = createEntityData(EntityDataPointer)
 
 /**
  * ノーツエンティティのスクリプト
-*/
+ */
 export function note(): Script {
     // EntityMemory: 汎用読み書きメモリ
     //  単一のノーツエンティティ内で扱う事が多い
@@ -63,10 +67,17 @@ export function note(): Script {
 
     const yCurrent = EntityMemory.to<number>(32)
     const inputState = EntityMemory.to<boolean>(33)
+    const xStart = EntityMemory.to<number>(34)
+    const xEnd = EntityMemory.to<number>(35)
+
+    /**
+     * ノーツの大きさ
+     */
+    const radius = 0.2
 
     /**
      * 事前処理
-    */
+     */
     const preprocess = [
         // 画面への出現タイミングを計算し代入
         EntityData.time.set(Divide(EntityData.time, options.speed)),
@@ -75,6 +86,12 @@ export function note(): Script {
         spawnTime.set(
             Subtract(EntityData.time, If(options.random, Random(0.5, 1.5), 1))
         ),
+        // X開始地点
+        //  ノーツ横幅(左)
+        xStart.set(Multiply(Multiply(-radius, 2), EntityData.column)),
+        // X終了地点
+        //  ノーツ横幅(右)
+        xEnd.set(Add(Multiply(radius, 2), xStart)),
         // Zファイティング対策
         z.set(Subtract(1000, EntityData.time)),
         // 最早入力受付時刻
@@ -95,7 +112,7 @@ export function note(): Script {
 
     /**
      * タッチコールバック処理
-    */
+     */
     const touch = And(
         // タッチが開始した直後
         TouchStarted,
@@ -150,19 +167,36 @@ export function note(): Script {
     )
 
     // 定数
-    const radius = 0.2
+    // この値は 描画中に更新される
+
+    /**
+     * 鍵盤の数
+     */
+    const columnCount = 4
+
+    /**
+     * 落下開始地点
+     */
     const yFrom = 1 + radius
+
+    /**
+     * 落下終了地点
+     */
     const yTo = -0.6
 
-    const left = -radius
-    const right = radius
-    // この値は 描画中に更新される
-    const top = Add(yCurrent, radius)
-    const bottom = Subtract(yCurrent, radius)
+    /**
+     * ノーツ縦幅(上座標)
+     */
+    const top = Add(yCurrent, radius / 2)
+
+    /**
+     * ノーツ縦幅(下座標)
+     */
+    const bottom = Subtract(yCurrent, radius / 2)
 
     /**
      * 並列描画処理
-    */
+     */
     const updateParallel = Or(
         // 入力中
         inputState,
@@ -175,13 +209,13 @@ export function note(): Script {
             // スプライトを描画
             Draw(
                 SkinSprite.NoteHeadCyan,
-                left,
+                xStart,
                 bottom,
-                left,
+                xStart,
                 top,
-                right,
+                xEnd,
                 top,
-                right,
+                xEnd,
                 bottom,
                 z,
                 1
