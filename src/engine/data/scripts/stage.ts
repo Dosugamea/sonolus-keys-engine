@@ -27,7 +27,11 @@ import {
 export function stage(): Script {
     // 汎用読み書きメモリ (このスクリプト内のコールバックで共有)
     const anyTouch = EntityMemory.to<boolean>(0)
-    const isTouchOccupied = TemporaryMemory.to<boolean>(0)
+    const leftLineXStart = EntityMemory.to<number>(1)
+    const leftLineXEnd = EntityMemory.to<number>(2)
+    const rightLineXStart = EntityMemory.to<number>(3)
+    const rightLineXEnd = EntityMemory.to<number>(4)
+
 
     /**
      * スポーン順序 (初期化スクリプトの次)
@@ -66,19 +70,29 @@ export function stage(): Script {
     const radius = 0.2
 
     /**
+     * 事前処理
+     */
+    const preprocess = [
+        leftLineXStart.set(Subtract(Multiply(-radius, 4), thickness)),
+        leftLineXEnd.set(Multiply(-radius, 4)),
+        rightLineXStart.set(Multiply(radius, 4)),
+        rightLineXEnd.set(Add(Multiply(radius, 4), thickness)),
+    ]
+
+    /**
      * 並列描画処理
      */
     const updateParallel = [
         // 枠左 を描画
         Draw(
             SkinSprite.JudgmentLine,
-            Subtract(Multiply(-radius, 4), thickness),
+            leftLineXStart,
             1,
-            Subtract(Multiply(-radius, 4), thickness),
+            leftLineXStart,
             -1,
-            Multiply(-radius, 4),
+            leftLineXEnd,
             -1,
-            Multiply(-radius, 4),
+            leftLineXEnd,
             1,
             0,
             // 不透明度
@@ -87,13 +101,13 @@ export function stage(): Script {
         // 枠右 を描画
         Draw(
             SkinSprite.JudgmentLine,
-            Multiply(radius, 4),
+            rightLineXStart,
             1,
-            Multiply(radius, 4),
+            rightLineXStart,
             -1,
-            Add(Multiply(radius, 4), thickness),
+            rightLineXEnd,
             -1,
-            Add(Multiply(radius, 4), thickness),
+            rightLineXEnd,
             1,
             0,
             // 不透明度
@@ -119,6 +133,9 @@ export function stage(): Script {
     ]
 
     return {
+        preprocess: {
+            code: preprocess,
+        },
         spawnOrder: {
             code: spawnOrder,
         },
