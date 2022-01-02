@@ -149,15 +149,15 @@ export function note(): Script {
             SpawnParticleEffect(
                 // ID
                 ParticleEffect.NoteCircularTapCyan,
-                // 座標...?
-                -0.4,
-                -1,
-                -0.4,
-                -0.2,
-                0.4,
-                -0.2,
-                0.4,
-                -1,
+                // 座標
+                xStart,
+                -0.8,
+                xStart,
+                -0.35,
+                xEnd,
+                -0.35,
+                xEnd,
+                -0.8,
                 // 表示秒数
                 0.3,
                 // ループするかどうか
