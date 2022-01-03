@@ -2,3 +2,5 @@
 node_modules/
 src/bgm.mp3
 src/level/data/chart.osu
+src/effect/data/*.wav
+src/effect/data/chart.osu

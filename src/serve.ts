@@ -1,5 +1,5 @@
 import { serve } from 'sonolus.js'
-import { buildOutput } from '.'
+import { buildOutput, effectOutput } from '.'
 
 /*
  * [serve.ts]
@@ -17,3 +17,7 @@ import { buildOutput } from '.'
 const sonolus = serve(buildOutput)
 
 sonolus.db.levels[0].bgm = sonolus.add('LevelBgm', './src/bgm.mp3')
+sonolus.db.effects[0].data = sonolus.add(
+    'EffectData',
+    Buffer.from(effectOutput)
+)

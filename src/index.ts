@@ -1,6 +1,7 @@
 import { build } from 'sonolus.js'
 import { engine } from './engine'
 import { levelData } from './level/data'
+import { effectData } from './effect/data'
 
 /*
  * [index.ts]
@@ -16,3 +17,5 @@ export const buildOutput = build({
         data: levelData,
     },
 })
+
+export const effectOutput = effectData
