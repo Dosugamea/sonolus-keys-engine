@@ -155,7 +155,7 @@ export function note(): Script {
             InputBucketValue.set(Multiply(1000, InputAccuracy)),
 
             // 効果音再生
-            Play(Add(EffectClip.Good, color), 0.02),
+            Play(EntityData.color, 0.02),
 
             // パーティクル表示
             SpawnParticleEffect(
