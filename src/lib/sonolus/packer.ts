@@ -1,6 +1,6 @@
-import * as zip from '@zip.js/zip.js'
+import * as crypto from 'crypto'
+import * as JSZip from 'JSZip'
 import { gzip } from 'pako'
-import { Blob } from 'buffer'
 import type { Beatmap } from '@osbjs/osujs'
 import {
     EffectClip,
@@ -32,10 +32,9 @@ export function srl<T extends ResourceType>(type: T) {
     }
 }
 
-export async function hash(data: BufferSource) {
-    return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-1', data)))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('')
+export function hash(data: BufferSource) {
+    // eslint-disable-next-line
+    return crypto.createHash('sha1').update(data, 'utf8').digest('hex')
 }
 
 export function newEffectClip(id: EffectClip): EffectDataClip {
@@ -49,16 +48,15 @@ export function newEffectClip(id: EffectClip): EffectDataClip {
  * Create .scp file with using specified beatmap, thumbnail, and clips.
  * This class only support one effect per file.
  */
+
 export class SfxPacker {
-    blobWriter: zip.BlobWriter
-    zipWriter: zip.ZipWriter
+    zipWriter: JSZip
     paths: Set<string>
     item: EffectItem
     effectData: EffectData
 
     constructor(beatmap: Beatmap) {
-        this.blobWriter = new zip.BlobWriter('application/zip')
-        this.zipWriter = new zip.ZipWriter(this.blobWriter)
+        this.zipWriter = JSZip()
         this.paths = new Set<string>()
         this.item = {
             name: beatmap.metadata.title,
@@ -74,28 +72,25 @@ export class SfxPacker {
         }
     }
 
-    async addFile(
-        path: string,
-        reader: zip.Reader
-    ): Promise<zip.Entry | undefined> {
+    addFile(path: string, reader: Buffer): void {
         if (!path.startsWith('/')) throw `"${path}" not allowed`
         path = path.slice(1)
         if (this.paths.has(path)) return
         this.paths.add(path)
-        return this.zipWriter.add(path, reader)
+        this.zipWriter.file(path, reader)
     }
 
     async packRaw(
         buffer: ArrayBuffer
     ): Promise<{ hash: string; data: Uint8Array }> {
         return {
-            hash: await hash(buffer),
+            hash: hash(buffer),
             data: new Uint8Array(buffer),
         }
     }
 
-    async addRaw(path: string, data: Uint8Array): Promise<void> {
-        await this.addFile(path, new zip.Uint8ArrayReader(data))
+    addRaw(path: string, data: Uint8Array): void {
+        this.addFile(path, Buffer.from(data))
     }
 
     async packJson<T>(json: T): Promise<{ hash: string; data: Uint8Array }> {
@@ -107,13 +102,13 @@ export class SfxPacker {
     }
 
     async addJson<T>(path: string, data: T): Promise<void> {
-        await this.addFile(path, new zip.TextReader(JSON.stringify(data)))
+        this.addFile(path, Buffer.from(JSON.stringify(data)))
     }
 
     async addThumbnail(thumbnail: ArrayBuffer): Promise<void> {
         const { hash, data } = await this.packRaw(thumbnail)
         const path = `/repository/EffectThumbnail/${hash}`
-        await this.addRaw(path, data)
+        this.addRaw(path, data)
         this.item.thumbnail.hash = hash
         this.item.thumbnail.url = path
     }
@@ -122,7 +117,7 @@ export class SfxPacker {
         const { hash, data } = await this.packRaw(clip)
         const newClip = newEffectClip(id)
         const path = `/repository/EffectClip/${hash}`
-        await this.addRaw(path, data)
+        this.addRaw(path, data)
         newClip.clip.hash = hash
         newClip.clip.url = path
         this.effectData.clips.push(newClip)
@@ -133,11 +128,11 @@ export class SfxPacker {
         const path = `/repository/EffectData/${hash}`
         this.item.data.hash = hash
         this.item.data.url = path
-        await this.addRaw(path, data)
+        this.addRaw(path, data)
     }
 
-    async exportPack(): Promise<Blob> {
-        this._addEffectData()
+    async exportPack() {
+        await this._addEffectData()
         await this.addJson<ItemList<EffectItem>>('/effects/list', {
             pageCount: 1,
             items: [this.item],
@@ -151,8 +146,10 @@ export class SfxPacker {
                 recommended: [],
             }
         )
-        await this.zipWriter.close()
-        return this.blobWriter.getData()
+        return this.zipWriter.generateNodeStream({
+            type: 'nodebuffer',
+            streamFiles: true,
+        })
     }
 
     exportItem() {
