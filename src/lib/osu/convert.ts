@@ -13,7 +13,13 @@ export async function fromOsu(
 ): Promise<LevelData> {
     const beatmap = await loadBeatMap(osu)
     const keys = beatmap.difficulty.circleSize
-    const title = beatmap.metadata.title
+    const sfxs = [
+        ...new Set(
+            beatmap.hitObjects.circles.map(
+                (circle) => circle.hitSample.filename
+            )
+        ),
+    ]
 
     return {
         entities: [
@@ -31,6 +37,7 @@ export async function fromOsu(
                         values: [
                             (+circle.startTime + offset) / 1000,
                             Math.floor((circle.x * keys) / 512) - 1,
+                            sfxs.indexOf(circle.hitSample.filename),
                         ],
                     },
                 }

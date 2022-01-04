@@ -46,6 +46,10 @@ class EntityDataPointer extends Pointer {
     public get column() {
         return this.to<number>(1)
     }
+
+    public get color() {
+        return this.to<number>(2)
+    }
 }
 
 // EntityData: Levelからパラメータを受け取れる唯一のメモリ
@@ -71,6 +75,7 @@ export function note(): Script {
     const inputState = EntityMemory.to<boolean>(33)
     const xStart = EntityMemory.to<number>(34)
     const xEnd = EntityMemory.to<number>(35)
+    const color = EntityMemory.to<number>(36)
 
     /**
      * ノーツの大きさ
@@ -94,6 +99,8 @@ export function note(): Script {
         // X終了地点
         //  ノーツ横幅(右)
         xEnd.set(Add(Multiply(radius, 2), xStart)),
+        // ノーツ色
+        color.set(Add(SkinSprite.NoteHeadNeutral, EntityData.color)),
         // Zファイティング対策
         z.set(Subtract(1000, EntityData.time)),
         // 最早入力受付時刻
@@ -148,7 +155,7 @@ export function note(): Script {
             InputBucketValue.set(Multiply(1000, InputAccuracy)),
 
             // 効果音再生
-            Play(Add(EffectClip.Miss, InputJudgment), 0.02),
+            Play(Add(EffectClip.Good, color), 0.02),
 
             // パーティクル表示
             SpawnParticleEffect(
@@ -216,7 +223,7 @@ export function note(): Script {
                 ),
                 // スプライトを描画
                 Draw(
-                    SkinSprite.NoteHeadCyan,
+                    color,
                     xStart,
                     bottom,
                     xStart,
