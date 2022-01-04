@@ -1,7 +1,7 @@
 import { build } from 'sonolus.js'
 import { engine } from './engine'
-import { levelData } from './level/data'
-import { effectData } from './effect/data'
+import { getLevelData } from './level/data'
+// import { effectData } from './effect/data'
 
 /*
  * [index.ts]
@@ -11,11 +11,11 @@ import { effectData } from './effect/data'
  *  3 buildOutputとしてexportする
  */
 
-export const buildOutput = build({
-    engine,
-    level: {
-        data: levelData,
-    },
-})
-
-export const effectOutput = effectData
+export async function buildOutputBuilder() {
+    return build({
+        engine,
+        level: {
+            data: await getLevelData(),
+        },
+    })
+}

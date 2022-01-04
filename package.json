@@ -1,7 +1,7 @@
 {
   "scripts": {
     "lint": "tsc -p . --noEmit && eslint --ext .ts src/",
-    "serve": "nodemon",
+    "serve": "ts-node-dev --respawn --transpile-only ./src/serve",
     "build": "node --loader ts-node/esm --experimental-specifier-resolution=node ./src/build.ts"
   },
   "devDependencies": {

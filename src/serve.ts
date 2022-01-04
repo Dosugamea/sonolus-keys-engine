@@ -1,5 +1,6 @@
 import { serve } from 'sonolus.js'
-import { buildOutput, effectOutput } from '.'
+import { buildOutputBuilder } from '.'
+// import { buildOutput } from '.'
 
 /*
  * [serve.ts]
@@ -14,10 +15,14 @@ import { buildOutput, effectOutput } from '.'
  *    ※ 譜面はビルド前に渡しておりビルド結果に含まれている
  */
 
-const sonolus = serve(buildOutput)
+buildOutputBuilder().then((buildOutput) => {
+    const sonolus = serve(buildOutput)
+    sonolus.db.levels[0].bgm = sonolus.add('LevelBgm', './src/bgm.mp3')
+})
 
-sonolus.db.levels[0].bgm = sonolus.add('LevelBgm', './src/bgm.mp3')
+/*
 sonolus.db.effects[0].data = sonolus.add(
     'EffectData',
     Buffer.from(effectOutput)
 )
+*/
